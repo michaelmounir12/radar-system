@@ -9,12 +9,13 @@ import org.example.rules.TruckSpeedRule;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 //TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
 // click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 public class Main {
     public static void main(String[] args) {
-        RadarSystem radar = new RadarSystem();
+        RadarSystem radar = RadarSystem.getInstance();
         radar.addRule(new PrivateSpeedRule());
         radar.addRule(new TruckSpeedRule());
         radar.addRule(new SeatBeltRule());
@@ -33,12 +34,17 @@ public class Main {
         o2.setSpeed(50);
         o2.setSeatbeltFastened(true);
 
-        Fine f1 = radar.handleObservation(o1);
-        if (f1 != null) f1.printFine();
+        Optional<Fine> f1 = radar.handleObservation(o1);
+        f1.ifPresentOrElse(
+                Fine::printFine,
+                () -> System.out.println("No violations for " + o1.getPlateNumber())
+        );
+        Optional<Fine> f2 = radar.handleObservation(o2);
+        f2.ifPresentOrElse(
+                Fine::printFine,
+                () -> System.out.println("No violations for " + o2.getPlateNumber())
+        );
 
-        Fine f2 = radar.handleObservation(o2);
-        if (f2 != null) f2.printFine();
-        else System.out.println("No violations for " +o2.getPlateNumber());
 
         System.out.println();
         System.out.println("All fines:");
